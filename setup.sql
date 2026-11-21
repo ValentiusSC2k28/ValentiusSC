@@ -914,7 +914,7 @@ begin
     case when st.check_mode = 'admin' then 'Do the task and show an admin.' else 'Answer the challenge.' end);
 end $$;
 
-create or replace function hh_norm(t text) returns text language sql immutable as $$
+create or replace function hh_norm(t text) returns text language sql immutable set search_path = public as $$
   select regexp_replace(lower(coalesce(t, '')), '[^a-z0-9]+', '', 'g');
 $$;
 
@@ -1016,7 +1016,7 @@ begin
   return new;
 end $$;
 
-create or replace function hh_touch() returns trigger language plpgsql as $$
+create or replace function hh_touch() returns trigger language plpgsql set search_path = public as $$
 begin new.updated_at := now(); return new; end $$;
 
 do $$
@@ -1063,7 +1063,8 @@ do $$
 declare f text;
 begin
   foreach f in array array['hh_me(text)','hh_add_points(integer,uuid,integer,text,text,text)','hh_room_finish(integer)',
-    'hh_room_event(integer,text,text)','hh_hunt_row(integer)','hh_hunt_advance(integer,uuid)','hh_audit_trg()','hh_points_bi()']
+    'hh_room_event(integer,text,text)','hh_hunt_row(integer)','hh_hunt_advance(integer,uuid)','hh_audit_trg()','hh_points_bi()',
+    'hh_team_totals()','hh_cfg()','hh_cfg_num(text[],numeric)','hh_cfg_bool(text[],boolean)','hh_state_get(text)','hh_lms_rules(jsonb)']
   loop
     execute format('revoke execute on function %s from public, anon, authenticated', f);
   end loop;
